@@ -1,20 +1,36 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Universal Orchard Mastering V2.2
 
-# Run and deploy your AI Studio app
+**World-Class Hybrid Mastering Suite & Image Studio**
 
-This contains everything you need to run your app locally.
+This is a proprietary mastering console designed for major label workflows. It combines analog DSP simulation (Compressors, EQ, Tape Saturation) with AI-powered analysis and visual asset editing.
 
-View your app in AI Studio: https://ai.studio/apps/drive/10Ut1EBnosdBD6sm2j1UndUiTQ1Sw9EZx
+## Credits
 
-## Run Locally
+**System Architecture & Engineering:**
+- **Orlando Galdamez** (Latin Grammy® Member)
+- **Krylin** (Latin Grammy® Member)
 
-**Prerequisites:**  Node.js
+## Features
 
+- **Audio Engine**: 64-bit floating point processing pipeline.
+- **Dolby Atmos / 3D**: Binaural spatializer for immersive monitoring.
+- **AI Humanizer**: Detects and "humanizes" AI-generated stems.
+- **Gemini Integration**: 
+  - Deep spectral analysis for auto-mastering settings.
+  - Generative image editing for album artwork.
+- **Hi-Res Export**: Support for 96kHz/24bit WAV export.
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## Tech Stack
+
+- **Frontend**: React 19, TypeScript, Tailwind CSS
+- **Audio**: Web Audio API (Native Nodes + AudioWorklet architecture concepts)
+- **AI**: Google Gemini 2.5 Flash & Pro Models via `@google/genai` SDK
+
+## Deployment
+
+This project is set up to be deployed on static hosting (GitHub Pages, Vercel, Netlify).
+Ensure your build environment supports ES Modules.
+
+## Security
+
+Confidential software for internal use at Universal Orchard Global Entertainment.

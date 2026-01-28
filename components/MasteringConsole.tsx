@@ -3,7 +3,7 @@ import { DspState, CompressorModel, EnvironmentType, ProfileType } from '../type
 import { PROFILES } from '../constants';
 import { Knob } from './Knob';
 import { performDeepAnalysisAndMaster } from '../services/geminiService';
-import { Play, Pause, Upload, Brain, X, Settings2, RefreshCw, AlertTriangle, Gauge, Waves, Mic2, Radio, Speaker, CheckCircle2, Download, Fingerprint, ScanEye, Sparkles, Activity, FileAudio, Zap, ChevronDown, ArrowRight, Power, Globe, Headphones } from 'lucide-react';
+import { Play, Pause, Upload, Brain, X, Settings2, RefreshCw, AlertTriangle, Gauge, Waves, Mic2, Radio, Speaker, CheckCircle2, Download, Fingerprint, ScanEye, Sparkles, Activity, FileAudio, Zap, ChevronDown, ArrowRight, Power, Globe, Headphones, Lock, Award } from 'lucide-react';
 
 // --- AUDIO HELPERS ---
 
@@ -193,6 +193,12 @@ export const MasteringConsole: React.FC = () => {
   const [analyzing, setAnalyzing] = useState(false);
   const [isProcessingDownload, setIsProcessingDownload] = useState(false);
   const [aiReport, setAiReport] = useState<any>(null);
+
+  // VIP Auth
+  const [isVipAuthenticated, setIsVipAuthenticated] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [passwordInput, setPasswordInput] = useState('');
+  const [authError, setAuthError] = useState('');
 
   // Audio Graph
   const ctxRef = useRef<AudioContext | null>(null);
@@ -534,31 +540,28 @@ export const MasteringConsole: React.FC = () => {
       setShowProfileMenu(false);
   };
 
-  const handleAiAnalyze = async () => {
-      if (!audioFile) return;
-      setAnalyzing(true);
-      try {
-          const buffer = await audioFile.arrayBuffer();
-          const offlineCtx = new OfflineAudioContext(1, 44100 * 2, 44100); 
-          const audioBuffer = await offlineCtx.decodeAudioData(buffer);
-          
-          const result = await performDeepAnalysisAndMaster({
-              bpm: 124, peak: -2.0, rms: -10.0, clippingDetected: false, duration: audioBuffer.duration,
-              spectralCutoff: 17500
-          });
-          
-          setSelectedProfileId(result.selectedProfileId);
-          setDsp(result.dspState);
-          setAiReport(result.aiDetectionReport);
-      } catch (e) {
-          console.error(e);
-      } finally {
-          setAnalyzing(false);
-      }
+  const handleAuthSubmit = () => {
+    if (passwordInput === '8069987') {
+      setIsVipAuthenticated(true);
+      setShowAuthModal(false);
+      setAuthError('');
+      // Trigger download immediately after unlock for better UX
+      handleDownload(true);
+    } else {
+      setAuthError('Access Denied: Invalid VIP Key');
+      setPasswordInput('');
+    }
   };
 
-  const handleDownload = async () => {
+  const handleDownload = async (bypassCheck = false) => {
       if (!audioFile) return;
+
+      // SECURITY CHECK
+      if (!isVipAuthenticated && !bypassCheck) {
+        setShowAuthModal(true);
+        return;
+      }
+
       setIsProcessingDownload(true);
       
       // Use a let variable for the context to ensure we can close it in finally block
@@ -629,6 +632,63 @@ export const MasteringConsole: React.FC = () => {
   return (
     <div className="flex flex-col h-full max-w-[1600px] mx-auto space-y-4">
       <audio ref={audioElRef} src={audioUrl || ''} onEnded={() => setIsPlaying(false)} crossOrigin="anonymous"/>
+
+      {/* --- VIP AUTH MODAL --- */}
+      {showAuthModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="bg-zinc-950 border border-zinc-800 p-8 rounded-xl max-w-md w-full shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-600 via-amber-500 to-red-600"></div>
+            
+            <div className="flex flex-col items-center text-center gap-4 mb-6">
+              <div className="w-16 h-16 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center">
+                <Lock className="w-8 h-8 text-red-500" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-white tracking-widest uppercase">Restricted Access</h3>
+                <p className="text-sm text-zinc-500 mt-2">Major Label Clearance Required for Download</p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="text-[10px] font-bold text-zinc-500 uppercase mb-1 block">VIP Access Key</label>
+                <input 
+                  type="password" 
+                  value={passwordInput}
+                  onChange={(e) => setPasswordInput(e.target.value)}
+                  placeholder="Enter Passcode..."
+                  className="w-full bg-black border border-zinc-800 rounded px-4 py-3 text-white text-center tracking-[0.5em] font-mono focus:border-red-600 focus:outline-none transition-colors"
+                />
+              </div>
+              
+              {authError && (
+                <div className="text-red-500 text-xs font-bold text-center animate-pulse">{authError}</div>
+              )}
+
+              <div className="flex gap-3">
+                <button 
+                  onClick={() => setShowAuthModal(false)}
+                  className="flex-1 py-3 bg-zinc-900 text-zinc-400 font-bold text-xs uppercase rounded hover:bg-zinc-800 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={handleAuthSubmit}
+                  className="flex-1 py-3 bg-red-600 text-white font-bold text-xs uppercase rounded hover:bg-red-700 shadow-[0_0_15px_rgba(220,38,38,0.5)] transition-all"
+                >
+                  Authenticate
+                </button>
+              </div>
+            </div>
+            
+            <div className="mt-6 text-center">
+              <p className="text-[9px] text-zinc-600">
+                Contact: <span className="text-zinc-500">Universal Orchard Admin</span> for keys.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* --- MASTER CONTROL SECTION --- */}
       <div className="grid grid-cols-12 gap-4">
@@ -737,12 +797,20 @@ export const MasteringConsole: React.FC = () => {
 
                   {audioFile && (
                         <button 
-                          onClick={handleDownload}
+                          onClick={() => handleDownload()}
                           disabled={isProcessingDownload}
-                          className="text-xs font-bold text-red-500 hover:text-red-400 flex items-center gap-2 uppercase tracking-wider bg-red-950/20 px-3 py-1 rounded border border-red-900/50 hover:bg-red-950/40 transition-all"
+                          className={`text-xs font-bold flex items-center gap-2 uppercase tracking-wider px-3 py-1 rounded border transition-all ${isVipAuthenticated 
+                              ? 'text-red-500 hover:text-red-400 bg-red-950/20 border-red-900/50 hover:bg-red-950/40'
+                              : 'text-zinc-500 bg-zinc-900 border-zinc-800 hover:bg-zinc-800'}`}
                         >
-                          {isProcessingDownload ? <RefreshCw className="w-3 h-3 animate-spin"/> : <Download className="w-3 h-3"/>}
-                          Export Master WAV {dsp?.spatialMode && '(Hi-Res)'}
+                          {isProcessingDownload ? (
+                            <RefreshCw className="w-3 h-3 animate-spin"/> 
+                          ) : isVipAuthenticated ? (
+                            <Download className="w-3 h-3"/>
+                          ) : (
+                            <Lock className="w-3 h-3" />
+                          )}
+                          {isVipAuthenticated ? `Export Master WAV ${dsp?.spatialMode ? '(Hi-Res)' : ''}` : 'Unlock Download'}
                         </button>
                   )}
               </div>
@@ -895,6 +963,17 @@ export const MasteringConsole: React.FC = () => {
              </RackModule>
           </div>
 
+      </div>
+
+      {/* INTERNAL CREDITS FOR CONSOLE */}
+      <div className="text-center py-6 border-t border-zinc-900/50 mt-8 mb-4">
+          <div className="flex items-center justify-center gap-2 mb-2 opacity-60">
+              <Award className="w-3 h-3 text-amber-500" />
+              <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Grammy® Engineering Architecture</span>
+          </div>
+          <p className="text-[10px] text-zinc-600 font-mono">
+             DSP System Designed by <span className="text-zinc-500 font-bold">Orlando Galdamez</span> & <span className="text-zinc-500 font-bold">Krylin</span> (Latin Grammy® Members)
+          </p>
       </div>
     </div>
   );

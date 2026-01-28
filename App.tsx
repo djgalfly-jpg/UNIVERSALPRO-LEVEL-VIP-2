@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { MasteringConsole } from './components/MasteringConsole';
 import { ImageStudio } from './components/ImageStudio';
-import { Disc3, Image as ImageIcon, Menu, Globe, ShieldCheck, Activity, Box, Lock, LogOut, ChevronRight } from 'lucide-react';
+import { Disc3, Image as ImageIcon, Menu, Globe, ShieldCheck, Activity, Box, Lock, LogOut, ChevronRight, Award } from 'lucide-react';
 
 enum Tab {
   MASTERING = 'MASTERING',
@@ -23,7 +23,7 @@ const App: React.FC = () => {
               <Globe className="w-5 h-5 mr-3" />
               <div>
                 <h1 className="text-sm font-black tracking-tighter leading-none">UNIVERSAL ORCHARD</h1>
-                <p className="text-[9px] font-mono tracking-widest opacity-80">GLOBAL ENTERTAINMENT</p>
+                <p className="text-[9px] font-mono tracking-widest opacity-80">SUITE V2.2</p>
               </div>
            </div>
 
@@ -98,7 +98,7 @@ const App: React.FC = () => {
       {/* MAIN CONTENT AREA */}
       <main className="flex-1 bg-black overflow-hidden flex flex-col relative">
          {/* TOP BAR */}
-         <header className="h-16 border-b border-zinc-900 flex items-center justify-between px-8 bg-black/95 backdrop-blur z-10">
+         <header className="h-16 border-b border-zinc-900 flex items-center justify-between px-8 bg-black/95 backdrop-blur z-10 shrink-0">
             <div className="flex items-center gap-2">
                 <span className="text-xs text-zinc-500 font-mono">PROJECT:</span>
                 <span className="text-xs text-white font-bold uppercase tracking-wider">UNTITLED SESSION 001</span>
@@ -113,10 +113,26 @@ const App: React.FC = () => {
          </header>
 
          {/* WORKSPACE */}
-         <div className="flex-1 overflow-hidden relative">
+         <div className="flex-1 overflow-hidden relative flex flex-col">
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-zinc-900/40 via-black to-black pointer-events-none"></div>
-            <div className="h-full p-6 overflow-y-auto custom-scrollbar">
+            
+            <div className="flex-1 p-6 overflow-y-auto custom-scrollbar relative z-10">
                 {activeTab === Tab.MASTERING ? <MasteringConsole /> : <ImageStudio />}
+                
+                {/* FOOTER CREDITS */}
+                <div className="mt-12 pt-8 border-t border-zinc-900 text-center pb-8">
+                    <div className="flex items-center justify-center gap-2 mb-2 text-amber-500">
+                        <Award className="w-4 h-4" />
+                        <span className="text-xs font-bold uppercase tracking-widest">Latin Grammy® Engineering Architecture</span>
+                        <Award className="w-4 h-4" />
+                    </div>
+                    <p className="text-xs text-zinc-400">
+                        System Architected by Engineers <span className="text-white font-bold">Orlando Galdamez</span> & <span className="text-white font-bold">Krylin</span> (Latin Grammy® Members).
+                    </p>
+                    <p className="text-[10px] text-zinc-600 mt-2 font-mono uppercase">
+                        Restricted Access: VIP Members Only. Playback allowed. Download requires authentication.
+                    </p>
+                </div>
             </div>
          </div>
       </main>
